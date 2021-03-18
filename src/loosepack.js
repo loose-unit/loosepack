@@ -15,6 +15,7 @@ class LoosePackWorker {
 
         this._webpackConfig = {
             mode: 'development',
+            devtool: 'hidden-source-map',
 
             entry: {
                 app: './src/app.ts',
@@ -190,7 +191,7 @@ class LoosePackWorker {
     addDevServer () {
         const proxy = EnvPlugin.config('WEBPACK_DEVSERVER_PROXY', 'https://stage.backend.whoop.io/');
         const host = EnvPlugin.config('WEBPACK_DEVSERVER_HOST', 'localhost');
-        const port = EnvPlugin.config('WEBPACK_DEV_SERVER_PORT', 5001);
+        const port = EnvPlugin.config('WEBPACK_DEV_SERVER_PORT', 8005);
 
         console.log('Using proxy: ' + proxy);
 
