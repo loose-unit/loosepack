@@ -62,6 +62,11 @@ class LoosePackWorker {
         return this;
     }
 
+    setAlias (alias) {
+        this._webpackConfig.resolve.alias = alias;
+        return this;
+    }
+
     addPluginClean () {
         const {CleanWebpackPlugin} = require('clean-webpack-plugin');
         
