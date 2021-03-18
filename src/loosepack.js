@@ -111,12 +111,16 @@ class LoosePackWorker {
         return this;
     }
 
-    addLoaderTypescript () {
+    addLoaderTypescript (esLintFiles) {
         const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+
+        if (!esLintFiles) {
+            esLintFiles =  './src/**/*.{ts,tsx,js,vue}';
+        }
 
         const plugin = new ForkTsCheckerWebpackPlugin({
           eslint: {
-            files: './src/**/*.{ts,tsx,js,vue}',
+            files: esLintFiles,
           },
           typescript: {
             extensions: {
