@@ -26,7 +26,7 @@ class LoosePackWorker {
                 publicPath: '/',
             },
             plugins: [
-                // new webpack.DefinePlugin(EnvPlugin.vueEnv()),
+                new webpack.DefinePlugin(EnvPlugin.vueEnv()),
             ],
             module: {
                 rules: [
