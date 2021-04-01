@@ -9,9 +9,9 @@ class LoosePackWorker {
         console.log(env);
         console.log(arg);
 
-        console.log (path.resolve(__dirname, 'dist'));
-
         this._env = EnvPlugin;
+        this._env.setArgsFromWebpackEnv(env);
+        this._env.loadConfig(env);
 
         this._webpackConfig = {
             mode: 'development',
@@ -188,12 +188,12 @@ class LoosePackWorker {
         return this;
     }
 
-    addDevServer () {
-        const proxy = EnvPlugin.config('WEBPACK_DEVSERVER_PROXY', 'https://stage.backend.whoop.io/');
-        const host = EnvPlugin.config('WEBPACK_DEVSERVER_HOST', 'localhost');
-        const port = EnvPlugin.config('WEBPACK_DEV_SERVER_PORT', 8005);
+    addDevServer ({ port, proxyPath, proxyTarget, host }) {
+        proxyPath = proxyPath || '/api/';
+        host = host || 'localhost';
+        port = port || 3000;
 
-        console.log('Using proxy: ' + proxy);
+        console.log('Using proxy: ' + proxyTarget);
 
         this._webpackConfig.devServer = {
             contentBase: './dist',
@@ -204,14 +204,18 @@ class LoosePackWorker {
             stats: 'minimal',
             overlay: true,
             historyApiFallback: true,
-            proxy: {
-                '/api/': {
-                    target: proxy,
-                    ws: true,
-                    changeOrigin: true,
-                },
-            },
+            proxy: { },
         };
+
+        this._webpackConfig.devServer.proxy[proxyPath] = {
+            target: proxyTarget,
+            ws: true,
+            changeOrigin: true,
+        }
+    }
+
+    env (val, defaultVall) {
+        return this._env.env(val, defaultVall);
     }
 
     config () {

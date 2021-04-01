@@ -2,14 +2,57 @@
 
 const prefixRE = /^VUE_APP_/;
 const dotenv = require('dotenv');
-const fs = require('fs');
 
 let ARGS = null;
 
-let loadedConfig = {};
-
 const Env = {
+  setArgsFromWebpackEnv(args) {
+    ARGS = args;
+  },
+
+  loadConfig(dotenvFile) {
+    dotenvFile = dotenvFile || this.arg('dotenv', '.env')
+    dotenv.config({
+      path: dotenvFile, 
+      encoding: 'utf8' 
+    });
+    return process.env;
+  },
+
+  vueEnv() {
+    const env = {};
+    Object.keys(process.env).forEach((key) => {
+      if (prefixRE.test(key) || key === 'NODE_ENV') {
+        env[key] = process.env[key];
+      }
+    });
+
+    for (const key in env) {
+      env[key] = JSON.stringify(env[key]);
+    }
+    return {
+      'process.env': env,
+    };
+  },
+
+  env(name, defaultValue = null) {
+    // console.log(`CONFIG!!!! ${name}`);
+    if (process.env[name]) {
+      // console.log(` - found: ${process.env[name]}`);
+      return process.env[name];
+    }
+    return defaultValue;
+  },
+
   arg(argName, defaultVal = '') {
+    if (ARGS[argName]) {
+      return ARGS[argName];
+    }
+
+    return defaultVal;
+  },
+  // Depreciated ... use method setArgsFromWebpackEnv
+  setArgsFromProcess() {
     if (ARGS === null) {
       ARGS = {};
       process.argv.forEach((s) => {
@@ -20,14 +63,9 @@ const Env = {
         }
       });
     }
-
-    if (ARGS[argName]) {
-      return ARGS[argName];
-    }
-
-    return defaultVal;
   },
 
+  // Depreciated ... use method setArgsFromWebpackEnv
   processArgs() {
     const args = {};
     let arg = JSON.parse(process.env.npm_config_argv).original[1];
@@ -40,41 +78,6 @@ const Env = {
     }
 
     return args;
-  },
-
-  loadConfig(dotenvFile, envDefaults) {
-    // console.log('LOADED');
-    loadedConfig = { ...envDefaults, ...dotenv.parse(fs.readFileSync(dotenvFile, { encoding: 'utf8' })) };
-    return loadedConfig;
-  },
-
-  vueEnv(raw) {
-    const env = {};
-    Object.keys(loadedConfig).forEach((key) => {
-      if (prefixRE.test(key) || key === 'NODE_ENV') {
-        env[key] = loadedConfig[key];
-      }
-    });
-
-    if (raw) {
-      return env;
-    }
-
-    for (const key in env) {
-      env[key] = JSON.stringify(env[key]);
-    }
-    return {
-      'process.env': env,
-    };
-  },
-
-  config(name, defaultValue = null) {
-    // console.log(`CONFIG!!!! ${name}`);
-    if (loadedConfig[name]) {
-      // console.log(` - found: ${loadedConfig[name]}`);
-      return loadedConfig[name];
-    }
-    return defaultValue;
   },
 };
 
